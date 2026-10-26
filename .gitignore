@@ -27,3 +27,13 @@ PP*.woff2
 /explorations/
 /docs/research/
 /docs/articles/
+*.p12
+*.pfx
+*.pem
+*.key
+*.csr
+*.crt
+*.cer
+.env
+.env.*
+*.log
