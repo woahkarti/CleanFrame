@@ -3,6 +3,8 @@
   'use strict';
   var IDS = {
     hbomax: '5b8c3eb16b.BeamCTVDev', primevideo: 'org.tizen.primevideo',
+    paramountplus: 'rJyOSqC6Up.CBSAllAccess', peacock: 'gzcc4LRFBF.Peacock',
+    hulu: 'LBUAQX1exg.Hulu',
     youtube: '9Ur5IzDKqV.TizenYouTube', netflix: 'org.tizen.netflix-app',
     appletv: 'com.samsung.tv.aria-video', spotify: 'rJeHak5zRg.Spotify'
   };

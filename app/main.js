@@ -16,9 +16,9 @@
   var PRIMARY_APPS = [
     { id: 'hbomax', name: 'HBO Max', mark: true, appId: '5b8c3eb16b.BeamCTVDev' },
     { id: 'primevideo', name: 'Prime Video', mark: true, appId: 'org.tizen.primevideo' },
-    { id: 'paramountplus', name: 'Paramount+', mark: true, appId: '' },
-    { id: 'peacock', name: 'Peacock', mark: true, appId: '' },
-    { id: 'hulu', name: 'Hulu', mark: true, appId: '' },
+    { id: 'paramountplus', name: 'Paramount+', mark: true, appId: 'rJyOSqC6Up.CBSAllAccess' },
+    { id: 'peacock', name: 'Peacock', mark: true, appId: 'gzcc4LRFBF.Peacock' },
+    { id: 'hulu', name: 'Hulu', mark: true, appId: 'LBUAQX1exg.Hulu' },
     { id: 'youtube', name: 'YouTube', mark: true, appId: '9Ur5IzDKqV.TizenYouTube' },
     { id: 'netflix', name: 'Netflix', mark: true, appId: 'org.tizen.netflix-app' },
     { id: 'appletv', name: 'Apple TV', mark: true, appId: 'com.samsung.tv.aria-video' },
