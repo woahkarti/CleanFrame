@@ -29,8 +29,15 @@ PHOTOS = [
     ('amber', 'Amber hills', 'chris-barbalis-vazZtmYFgFY-unsplash.jpg', 'Chris Barbalis', 'vazZtmYFgFY', 'light'),
     ('mint', 'Mint wave', 'magicpattern-87PP9Zd7MNo-unsplash.jpg', 'MagicPattern', '87PP9Zd7MNo', 'light'),
     ('alpine', 'Alpine glow', 'cristina-gottardi-CSpjU6hYo_0-unsplash.jpg', 'Cristina Gottardi', 'CSpjU6hYo_0', 'light'),
+    ('deer', 'Deer at dusk', '000084390035.jpg', 'karti prabhakar', '', 'dark'),
+    ('hills', 'Sunset hills', '000001640005.jpg', 'karti prabhakar', '', 'dark'),
+    ('bay', 'Bay at dusk', '700392840009.jpg', 'karti prabhakar', '', 'dark'),
+    ('ocean', 'Ocean sunset', '000099730003.jpg', 'karti prabhakar', '', 'light'),
+    ('gulls', 'Three gulls', '000370850011.jpg', 'karti prabhakar', '', 'light'),
+    ('ushiku', 'Ushiku in snow', '1565853034594.jpg', 'Photographer unknown', '', 'light'),
 ]
-COVER_IDS = {'summit', 'goldcoast', 'sydney', 'amber', 'mint', 'alpine'}
+COVER_IDS = {'summit', 'goldcoast', 'sydney', 'amber', 'mint', 'alpine',
+             'deer', 'hills', 'bay', 'ocean', 'gulls', 'ushiku'}
 
 
 def file_hash(path):

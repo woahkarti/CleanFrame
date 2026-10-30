@@ -226,5 +226,95 @@ window.CleanFrameWallpapers = [
     "listColumn": 0,
     "dockQuiet": false,
     "clockMist": false
+  },
+  {
+    "id": "deer",
+    "name": "Deer at dusk",
+    "src": "assets/wallpapers/deer.jpg",
+    "thumb": "assets/wallpapers/deer-thumb.jpg",
+    "tone": "dark",
+    "ut": {
+      "tr": "mist",
+      "br": "light"
+    },
+    "frostVeil": 0.12,
+    "listColumn": 0,
+    "dockQuiet": false,
+    "clockMist": true
+  },
+  {
+    "id": "hills",
+    "name": "Sunset hills",
+    "src": "assets/wallpapers/hills.jpg",
+    "thumb": "assets/wallpapers/hills-thumb.jpg",
+    "tone": "dark",
+    "ut": {
+      "tr": "mist",
+      "br": "mist"
+    },
+    "frostVeil": 0.3,
+    "listColumn": 2,
+    "dockQuiet": true,
+    "clockMist": true
+  },
+  {
+    "id": "bay",
+    "name": "Bay at dusk",
+    "src": "assets/wallpapers/bay.jpg",
+    "thumb": "assets/wallpapers/bay-thumb.jpg",
+    "tone": "dark",
+    "ut": {
+      "tr": "dark",
+      "br": "mist"
+    },
+    "frostVeil": 0.44,
+    "listColumn": 0,
+    "dockQuiet": false,
+    "clockMist": false
+  },
+  {
+    "id": "ocean",
+    "name": "Ocean sunset",
+    "src": "assets/wallpapers/ocean.jpg",
+    "thumb": "assets/wallpapers/ocean-thumb.jpg",
+    "tone": "light",
+    "ut": {
+      "tr": "light",
+      "br": "mist"
+    },
+    "frostVeil": 0.12,
+    "listColumn": 0,
+    "dockQuiet": false,
+    "clockMist": true
+  },
+  {
+    "id": "gulls",
+    "name": "Three gulls",
+    "src": "assets/wallpapers/gulls.jpg",
+    "thumb": "assets/wallpapers/gulls-thumb.jpg",
+    "tone": "light",
+    "ut": {
+      "tr": "mist",
+      "br": "light"
+    },
+    "frostVeil": 0.2,
+    "listColumn": 0,
+    "dockQuiet": false,
+    "clockMist": false
+  },
+  {
+    "id": "ushiku",
+    "name": "Ushiku in snow",
+    "src": "assets/wallpapers/ushiku.jpg",
+    "thumb": "assets/wallpapers/ushiku-thumb.jpg",
+    "tone": "light",
+    "ut": {
+      "tr": "mist",
+      "br": "mist"
+    },
+    "frostVeil": 0.44,
+    "listColumn": 3,
+    "dockQuiet": false,
+    "clockMist": true
   }
 ];

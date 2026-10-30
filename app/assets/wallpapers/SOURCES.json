@@ -148,5 +148,65 @@
     "tone": "light",
     "credit": "Cristina Gottardi",
     "source": "https://unsplash.com/photos/CSpjU6hYo_0"
+  },
+  {
+    "id": "deer",
+    "name": "Deer at dusk",
+    "src": "assets/wallpapers/deer.jpg",
+    "thumb": "assets/wallpapers/deer-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "dark",
+    "credit": "karti prabhakar",
+    "source": ""
+  },
+  {
+    "id": "hills",
+    "name": "Sunset hills",
+    "src": "assets/wallpapers/hills.jpg",
+    "thumb": "assets/wallpapers/hills-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "dark",
+    "credit": "karti prabhakar",
+    "source": ""
+  },
+  {
+    "id": "bay",
+    "name": "Bay at dusk",
+    "src": "assets/wallpapers/bay.jpg",
+    "thumb": "assets/wallpapers/bay-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "dark",
+    "credit": "karti prabhakar",
+    "source": ""
+  },
+  {
+    "id": "ocean",
+    "name": "Ocean sunset",
+    "src": "assets/wallpapers/ocean.jpg",
+    "thumb": "assets/wallpapers/ocean-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "light",
+    "credit": "karti prabhakar",
+    "source": ""
+  },
+  {
+    "id": "gulls",
+    "name": "Three gulls",
+    "src": "assets/wallpapers/gulls.jpg",
+    "thumb": "assets/wallpapers/gulls-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "light",
+    "credit": "karti prabhakar",
+    "source": ""
+  },
+  {
+    "id": "ushiku",
+    "name": "Ushiku in snow",
+    "src": "assets/wallpapers/ushiku.jpg",
+    "thumb": "assets/wallpapers/ushiku-thumb.jpg",
+    "pos": "50% 50%",
+    "tone": "light",
+    "credit": "Photographer unknown",
+    "source": ""
   }
 ]
