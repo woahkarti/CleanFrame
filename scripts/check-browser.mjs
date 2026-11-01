@@ -857,8 +857,6 @@ try {
     check('Launching an app plays launch', same(await heard(), ['launch']));
     await current.evaluate(() => { __setHidden(true); __setHidden(false); }); await current.waitForTimeout(50);
     check('Returning to CleanFrame plays home', (await heard()).includes('home'));
-    await current.evaluate(() => window.dispatchEvent(new Event('appcontrol')));
-    check('Home pressed while already on CleanFrame plays home', same(await heard(), ['home']));
     await group('sound'); await heard();
     const toggles = (await radios()).filter(r => r.action?.startsWith('choice.sound.')).map(r => r.action).sort();
     check('Sound offers On and Off', same(toggles, ['choice.sound.off', 'choice.sound.on']), toggles);

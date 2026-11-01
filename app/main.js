@@ -1877,8 +1877,7 @@
     if (document.hidden) { pauseRotation(); clearTimeout(clockTimer); soundSleep = setTimeout(function () { if (document.hidden && window.FrameSound) FrameSound.suspend(); }, 2000); }
     else { release(); after(); updateClock(); focusStage(); sfx('home'); }
   });
-  // Home pressed while CleanFrame is already showing relaunches it without a visibility change.
-  window.addEventListener('appcontrol', function () { if (!document.hidden) sfx('home'); });
+  // Home pressed while CleanFrame is already showing reaches no event on this TV (checked 2026-10-31), so it stays silent.
   window.addEventListener('resize', fit);
 
   /* Readable browser checks use the real state and actions, without fake outcomes. */
