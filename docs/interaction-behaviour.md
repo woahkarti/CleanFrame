@@ -20,7 +20,7 @@ Settings opens a grouped overview: Background, Layout, Typography, Focus, Apps o
 | Layout | List or Dock; independent Text, Icons or Both choices for apps and Home controls |
 | Typography | Manrope, Neue Montreal, Mori, Pangram Sans, Geist and Newsreader, when available |
 | Focus | Type or Glass; Soft, Frost or Clear tint material |
-| Sound | Glass, Felt, Air or Off; Soft, Normal or Bold volume |
+| Sound | On or Off; Soft, Normal or Bold volume |
 | Apps on Home | Membership and arrangement editor |
 | Samsung | Samsung Home and TV settings |
 
@@ -34,14 +34,16 @@ The selected font applies to Home app names, the clock and Home controls, includ
 
 ## Sound
 
-CleanFrame plays short interface sounds, synthesised in `app/sound.js` with Web Audio. There are no audio files and no network use. Palettes: Glass (clear taps and chimes, the default), Felt (warm mallets), Air (soft breaths) and Off. Volume is Soft, Normal or Bold, relative to the TV volume.
+CleanFrame plays short interface sounds, synthesised in `app/sound.js` with Web Audio. There are no audio files and no network use. Settings → Sound turns them On (the default) or Off, at Soft (the default), Normal or Bold volume, relative to the TV volume. The sound set was chosen by the owner from a wider library kept in `sound.js`:
 
-- Move: a remote arrow moves focus. Edge: an arrow that cannot move further.
-- Select: OK opens a panel, applies a choice or picks up an app. Back: Back closes or leaves something.
-- Launch: OK opens an app, Art Mode or a Samsung screen.
-- Home: CleanFrame starts, or becomes visible again (for example after the Home button).
+- Move: a low, felted mallet tap when a remote arrow moves focus.
+- Edge: a soft low bump when an arrow cannot move further. Holding the arrow plays it once, not on every key repeat.
+- Select: two low mallet notes when OK opens a panel, applies a choice or picks up an app.
+- Back: a single low mallet tap when Back closes or leaves something.
+- Launch: two gentle rising mallet notes when OK opens an app, Art Mode or a Samsung screen.
+- Home: a soft airy chord when CleanFrame starts or becomes visible again (for example after the Home button).
 
-Choosing a palette plays its select sound as a preview. Rapid repeats are rate-limited, and the audio engine sleeps two seconds after CleanFrame is hidden. The choice is stored with the other preferences.
+Rapid repeats are rate-limited, and the audio engine sleeps two seconds after CleanFrame is hidden. The choice is stored with the other preferences; saved palette names from earlier builds map to On.
 
 ## Streaming apps
 

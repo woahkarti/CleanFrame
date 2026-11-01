@@ -47,9 +47,8 @@
   var LOOK_KEYS = ['bg', 'layout', 'apps', 'font', 'controls', 'focus', 'material'];
   var LOOK_VALUES = { bg: ['dark', 'light', 'photo'], layout: ['list', 'dock'], apps: ['icons', 'both', 'text'], font: Object.keys(FONTS).filter(function (id) { return id === 'manrope' || PRIVATE_FONTS.indexOf(id) >= 0; }), controls: ['icons', 'both', 'text'], focus: ['type', 'glass'], material: ['soft', 'frost', 'tint'] };
   var LOOK_NAMES = { bg: 'Background', layout: 'Layout', apps: 'Apps', font: 'Font', controls: 'Home controls', focus: 'Focus', material: 'Material' };
-  var SOUNDS = ['glass', 'felt', 'air', 'off'], SOUND_LEVELS = ['soft', 'normal', 'bold'];
-  var SOUND_NOTES = { glass: 'Clear taps and chimes', felt: 'Warm wooden mallets', air: 'Soft breaths, barely there', off: 'No interface sounds' };
-  var VALUE_NAMES = { glass: 'Glass', felt: 'Felt', air: 'Air', off: 'Off', normal: 'Normal', bold: 'Bold', dark: 'Dark', light: 'Light', photo: 'Photo', list: 'List', dock: 'Dock', type: 'Type', glass: 'Glass', soft: 'Soft', frost: 'Frost', tint: 'Clear tint', icons: 'Icons', both: 'Icons and text', text: 'Text' };
+  var SOUNDS = ['on', 'off'], SOUND_LEVELS = ['soft', 'normal', 'bold'];
+  var VALUE_NAMES = { on: 'On', off: 'Off', normal: 'Normal', bold: 'Bold', dark: 'Dark', light: 'Light', photo: 'Photo', list: 'List', dock: 'Dock', type: 'Type', glass: 'Glass', soft: 'Soft', frost: 'Frost', tint: 'Clear tint', icons: 'Icons', both: 'Icons and text', text: 'Text' };
   var UTIL = { art: ['Art Mode', 'art'], apps: ['All apps', 'apps'], arrange: ['Arrange', 'arrange'], settings: ['Settings', 'settings'] };
   var MSG = {
     leave: { title: 'Leave Home?', line: 'Open Samsung Home?', note: '', actions: [['stay', 'Stay'], ['samsung', 'Samsung Home']] }
@@ -349,7 +348,7 @@
       font: pick(modern.font, LOOK_VALUES.font, 'manrope'), wall: wall(modern.wall || s.wallpaper) ? modern.wall || s.wallpaper : WALLS[0].id,
       home: h, recent: recent, lastApp: h.indexOf(s.lastApp) >= 0 ? s.lastApp : h[0],
       mode: pick(s.mode, MODES.map(function (m) { return m.id; }), 'fixed'),
-      sound: pick(s.sound, SOUNDS, 'glass'), level: pick(s.level, SOUND_LEVELS, 'normal')
+      sound: pick(s.sound, SOUNDS, 'on'), level: pick(s.level, SOUND_LEVELS, 'soft')
     };
   }
   function serialise(c) {
@@ -375,7 +374,7 @@
   }
   /* ---------- Interface sounds ---------- */
   QA.sounds = [];
-  function tuneSound() { if (window.FrameSound) FrameSound.configure(S.c.sound, S.c.level); }
+  function tuneSound() { if (window.FrameSound) FrameSound.configure(S.c.sound === 'off' ? 'off' : 'cleanframe', S.c.level); }
   function sfx(name) {
     if (S.c.sound === 'off') return;
     QA.sounds.push(name); if (QA.sounds.length > 50) QA.sounds.shift();
@@ -886,7 +885,7 @@
         reason: inactive ? flat ? 'Materials are available with a Photo background.' : 'Choose Glass focus or the Dock layout to use materials.' : '' }
     ];
     if (t.group === 'sound') return [
-      { id: 'sound', title: 'Sound palette', items: SOUNDS.map(function (v) { var c = choice('sound', v); c.description = SOUND_NOTES[v]; return c; }) },
+      { id: 'sound', title: 'Interface sounds', horizontal: true, items: options('sound', SOUNDS) },
     ].concat(S.c.sound === 'off' ? [] : [{ id: 'level', title: 'Volume', horizontal: true, items: options('level', SOUND_LEVELS) }]);
     if (t.group === 'rotation') return [{ id: 'mode', title: '', items: options('mode', MODES.map(function (m) { return m.id; }), flat),
       reason: flat ? 'Choose Photo in Background to use rotation.' : 'Timed changes pause while Settings or another panel is open.' }];
@@ -990,7 +989,8 @@
   /* ---------- Dispatch ---------- */
   function norm() { var t = top(), v = V[t.id]; if (v.norm) v.norm(t); }
   function pressSig() { var t = top(); return S.stack.length + '|' + t.id + '|' + JSON.stringify(t.f) + '|' + t.i + '|' + (t.lifted ? t.lifted.order.join() : '') + '|' + focusedAction(); }
-  function press(k) {
+  var edgeHeld = false;
+  function press(k, repeat) {
     norm();
     var t = top(), before = pressSig(), depth = S.stack.length, after;
     S.launched = false;
@@ -1002,7 +1002,8 @@
     if (S.launched) sfx('launch');
     else if (k === 'back') { if (after !== before) sfx('back'); }
     else if (k === 'ok') sfx(S.stack.length < depth ? 'back' : 'select');
-    else sfx(after !== before ? 'move' : 'edge');
+    else if (after !== before) { edgeHeld = false; sfx('move'); }
+    else if (!(repeat && edgeHeld)) { edgeHeld = true; sfx('edge'); }
   }
 
   /* ---------- Rendering ---------- */
@@ -1864,7 +1865,8 @@
     if (!k || ev.metaKey || ev.ctrlKey || ev.altKey) return;
     ev.preventDefault();
     if (k === 'ok' || k === 'back') { if (ev.repeat || heldKeys[code]) return; heldKeys[code] = true; }
-    press(k);
+    press(k, ev.repeat || !!heldKeys[code]);
+    heldKeys[code] = true;
   });
   document.addEventListener('keyup', function (ev) { delete heldKeys[ev.keyCode]; });
   window.addEventListener('blur', function () { heldKeys = {}; });

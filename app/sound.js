@@ -3,7 +3,7 @@
   'use strict';
   var Ctx = window.AudioContext || window.webkitAudioContext;
   var ctx = null, master = null, wet = null, bus = null, busWet = null, noiseBuf = null, failed = false;
-  var palette = 'glass', level = 'normal', last = {};
+  var palette = 'cleanframe', level = 'soft', last = {};
   var LEVELS = { soft: 0.45, normal: 0.8, bold: 1.25 };
   var GAP = { move: 38, edge: 120, select: 60, back: 60, launch: 250, home: 900 };
   var CUES = ['move', 'edge', 'select', 'back', 'launch', 'home'];
@@ -120,7 +120,9 @@
   };
   var PALETTES = {};
   ['glass', 'felt', 'air'].forEach(function (p) { PALETTES[p] = {}; CUES.forEach(function (c) { PALETTES[p][c] = p + '.' + c; }); });
-  PALETTES.mix = { move: 'felt.move.soft', edge: 'felt.edge', select: 'felt.select.low', back: 'felt.back', launch: 'launch.bloom', home: 'air.home' };
+  /* CleanFrame's sound, chosen by the owner, 2026-10-31. */
+  PALETTES.cleanframe = { move: 'felt.move.low', edge: 'felt.edge', select: 'felt.select.low', back: 'back.felt.single', launch: 'launch.step', home: 'air.home' };
+  PALETTES.mix = {}; CUES.forEach(function (c) { PALETTES.mix[c] = PALETTES.cleanframe[c]; });
 
   function sound(id) {
     if (!LIB[id] || !init()) return false;

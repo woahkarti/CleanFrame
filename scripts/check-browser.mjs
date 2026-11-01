@@ -841,28 +841,35 @@ try {
   await run('Interface sounds', async () => {
     await page();
     const heard = () => current.evaluate(() => ShoreQA.sounds.splice(0));
-    check('Glass at normal volume is the default', (await state()).sound === 'glass' && (await state()).level === 'normal');
-    check('Engine is bundled before main.js', await current.evaluate(() => !!window.FrameSound && FrameSound.palettes.join() === 'glass,felt,air'));
+    check('Sound is on at soft volume by default', (await state()).sound === 'on' && (await state()).level === 'soft');
+    check('Engine is bundled before main.js', await current.evaluate(() => !!window.FrameSound && typeof FrameSound.play === 'function'));
     await heard(); await scene('home');
     await nav('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left'); await heard();
     await nav('right'); check('Moving between tiles plays move', same(await heard(), ['move']));
     await nav('left', 'left'); check('Pressing past the first tile plays edge', same(await heard(), ['move', 'edge']));
+    await current.evaluate(() => {
+      const fire = (type, repeat) => document.dispatchEvent(new KeyboardEvent(type, { keyCode: 37, which: 37, key: 'ArrowLeft', repeat, bubbles: true }));
+      fire('keydown', false); for (let n = 0; n < 6; n++) fire('keydown', true); fire('keyup', false);
+    });
+    check('Holding at the edge plays edge only once', same(await heard(), ['edge']));
+    await current.keyboard.press('ArrowLeft'); check('A fresh press at the edge plays edge again', same(await heard(), ['edge']));
     await nav('ok'); await current.waitForFunction(() => __tv.calls.length > 0);
     check('Launching an app plays launch', same(await heard(), ['launch']));
     await current.evaluate(() => { __setHidden(true); __setHidden(false); }); await current.waitForTimeout(50);
     check('Returning to CleanFrame plays home', (await heard()).includes('home'));
     await group('sound'); await heard();
-    const palettes = (await radios()).filter(r => r.action?.startsWith('choice.sound.')).map(r => r.action).sort();
-    check('Sound shows every palette and Off', same(palettes, ['air', 'felt', 'glass', 'off'].map(v => 'choice.sound.' + v)), palettes);
-    await choice('sound', 'felt');
-    check('Choosing a palette saves it once', (await stored()).sound === 'felt' && (await state()).sound === 'felt');
-    await choice('level', 'soft'); check('Volume saves', (await stored()).level === 'soft');
+    const toggles = (await radios()).filter(r => r.action?.startsWith('choice.sound.')).map(r => r.action).sort();
+    check('Sound offers On and Off', same(toggles, ['choice.sound.off', 'choice.sound.on']), toggles);
+    await choice('level', 'normal'); check('Volume saves', (await stored()).level === 'normal');
     await choice('sound', 'off'); await heard();
-    check('Off hides volume choices', !(await radios()).some(r => r.action?.startsWith('choice.level.')));
+    check('Off saves and hides volume choices', (await stored()).sound === 'off' && !(await radios()).some(r => r.action?.startsWith('choice.level.')));
     await nav('back'); await nav('down'); await nav('up');
     check('Off is silent', (await heard()).length === 0);
     await current.reload(); await ready();
-    check('Sound choice survives reload', (await state()).sound === 'off' && (await state()).level === 'soft');
+    check('Sound choice survives reload', (await state()).sound === 'off' && (await state()).level === 'normal');
+    await closePage();
+    await page({ seed: baseline({ sound: 'felt', level: 'bold' }) });
+    check('Round-1 palette choices migrate to On', (await state()).sound === 'on' && (await state()).level === 'bold');
   });
   await run('Open rotation and browser fallback', async () => {
     await page({ seed: baseline({ mode: 'open' }) }); check('Open mode advances at cold start', (await state()).wallpaper === walls[1].id);
