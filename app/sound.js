@@ -109,19 +109,21 @@
     'back.felt.low': function () { mallet(587, 0, 0.11, 0.22, 0.6); mallet(392, 0.07, 0.11, 0.32, 0.6); },
     'back.felt.single': function () { mallet(330, 0, 0.13, 0.25, 0.45); },
     'back.drop': function () { tone(523, 0, { gain: 0.1, attack: 0.006, decay: 0.2, to: 392, glide: 0.12, lp: 1400 }); air(0, { f: 1200, q: 2, gain: 0.03, decay: 0.012 }); },
-    'back.hush': function () { air(0, { f: 1400, to: 350, q: 0.9, gain: 0.08, attack: 0.02, decay: 0.16 }); }
+    'back.hush': function () { air(0, { f: 1400, to: 350, q: 0.9, gain: 0.08, attack: 0.02, decay: 0.16 }); },
+    /* felt.edge sits at 196 Hz, below what TV speakers play; this bump keeps the dull knock but lands in their range. */
+    'felt.edge.bump': function () { tone(349, 0, { gain: 0.12, attack: 0.004, decay: 0.09, to: 262, glide: 0.07, lp: 1500 }); mallet(262, 0, 0.05, 0.06, 0.3); }
   };
   /* Loudness trims, measured offline so each sound sits at its target level. */
   var TRIM = {
     'glass.move': 3.2, 'glass.edge': 2.99, 'glass.select': 0.95, 'glass.back': 1.15, 'glass.launch': 0.98, 'glass.home': 0.85,
     'felt.move': 2.82, 'felt.edge': 1.26, 'felt.select': 0.78, 'felt.back': 0.8, 'felt.launch': 0.86, 'felt.home': 0.6,
     'air.move': 6.1, 'air.edge': 7.24, 'air.select': 2.51, 'air.back': 2.02, 'air.launch': 2.24, 'air.home': 0.57,
-    'felt.move.soft': 1.82, 'felt.move.low': 1.86, 'felt.move.deep': 1.8, 'felt.select.low': 0.8, 'launch.bloom': 1.38, 'launch.step': 0.85, 'launch.breath': 4.47, 'launch.hush': 1.8, 'back.felt.low': 0.83, 'back.felt.single': 2.66, 'back.drop': 3.59, 'back.hush': 6.76
+    'felt.move.soft': 1.82, 'felt.move.low': 1.86, 'felt.move.deep': 1.8, 'felt.select.low': 0.8, 'launch.bloom': 1.38, 'launch.step': 0.85, 'launch.breath': 4.47, 'launch.hush': 1.8, 'back.felt.low': 0.83, 'back.felt.single': 2.66, 'back.drop': 3.59, 'back.hush': 6.76, 'felt.edge.bump': 1.78
   };
   var PALETTES = {};
   ['glass', 'felt', 'air'].forEach(function (p) { PALETTES[p] = {}; CUES.forEach(function (c) { PALETTES[p][c] = p + '.' + c; }); });
   /* CleanFrame's sound, chosen by the owner, 2026-10-31. */
-  PALETTES.cleanframe = { move: 'felt.move.low', edge: 'felt.edge', select: 'felt.select.low', back: 'back.felt.single', launch: 'launch.step', home: 'air.home' };
+  PALETTES.cleanframe = { move: 'felt.move.low', edge: 'felt.edge.bump', select: 'felt.select.low', back: 'back.felt.single', launch: 'launch.step', home: 'air.home' };
   PALETTES.mix = {}; CUES.forEach(function (c) { PALETTES.mix[c] = PALETTES.cleanframe[c]; });
 
   function sound(id) {
