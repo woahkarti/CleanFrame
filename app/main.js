@@ -47,7 +47,9 @@
   var LOOK_KEYS = ['bg', 'layout', 'apps', 'font', 'controls', 'focus', 'material'];
   var LOOK_VALUES = { bg: ['dark', 'light', 'photo'], layout: ['list', 'dock'], apps: ['icons', 'both', 'text'], font: Object.keys(FONTS).filter(function (id) { return id === 'manrope' || PRIVATE_FONTS.indexOf(id) >= 0; }), controls: ['icons', 'both', 'text'], focus: ['type', 'glass'], material: ['soft', 'frost', 'tint'] };
   var LOOK_NAMES = { bg: 'Background', layout: 'Layout', apps: 'Apps', font: 'Font', controls: 'Home controls', focus: 'Focus', material: 'Material' };
-  var VALUE_NAMES = { dark: 'Dark', light: 'Light', photo: 'Photo', list: 'List', dock: 'Dock', type: 'Type', glass: 'Glass', soft: 'Soft', frost: 'Frost', tint: 'Clear tint', icons: 'Icons', both: 'Icons and text', text: 'Text' };
+  var SOUNDS = ['glass', 'felt', 'air', 'off'], SOUND_LEVELS = ['soft', 'normal', 'bold'];
+  var SOUND_NOTES = { glass: 'Clear taps and chimes', felt: 'Warm wooden mallets', air: 'Soft breaths, barely there', off: 'No interface sounds' };
+  var VALUE_NAMES = { glass: 'Glass', felt: 'Felt', air: 'Air', off: 'Off', normal: 'Normal', bold: 'Bold', dark: 'Dark', light: 'Light', photo: 'Photo', list: 'List', dock: 'Dock', type: 'Type', glass: 'Glass', soft: 'Soft', frost: 'Frost', tint: 'Clear tint', icons: 'Icons', both: 'Icons and text', text: 'Text' };
   var UTIL = { art: ['Art Mode', 'art'], apps: ['All apps', 'apps'], arrange: ['Arrange', 'arrange'], settings: ['Settings', 'settings'] };
   var MSG = {
     leave: { title: 'Leave Home?', line: 'Open Samsung Home?', note: '', actions: [['stay', 'Stay'], ['samsung', 'Samsung Home']] }
@@ -346,7 +348,8 @@
       focus: pick(modern.focus, LOOK_VALUES.focus, legacyList ? 'type' : 'glass'), material: pick(modern.material, LOOK_VALUES.material, 'soft'),
       font: pick(modern.font, LOOK_VALUES.font, 'manrope'), wall: wall(modern.wall || s.wallpaper) ? modern.wall || s.wallpaper : WALLS[0].id,
       home: h, recent: recent, lastApp: h.indexOf(s.lastApp) >= 0 ? s.lastApp : h[0],
-      mode: pick(s.mode, MODES.map(function (m) { return m.id; }), 'fixed')
+      mode: pick(s.mode, MODES.map(function (m) { return m.id; }), 'fixed'),
+      sound: pick(s.sound, SOUNDS, 'glass'), level: pick(s.level, SOUND_LEVELS, 'normal')
     };
   }
   function serialise(c) {
@@ -368,17 +371,33 @@
     if (saved && initial.mode === 'open') initial.wall = WALLS[(wallIndex(initial.wall) + 1) % WALLS.length].id;
     // Keep the old schema keys alongside the builder values for in-place updates.
     try { localStorage.setItem(KEY, JSON.stringify(serialise(initial))); S.c = initial; storageOk = true; } catch (e) { storageOk = false; }
+    tuneSound();
+  }
+  /* ---------- Interface sounds ---------- */
+  QA.sounds = [];
+  function tuneSound() { if (window.FrameSound) FrameSound.configure(S.c.sound, S.c.level); }
+  function sfx(name) {
+    if (S.c.sound === 'off') return;
+    QA.sounds.push(name); if (QA.sounds.length > 50) QA.sounds.shift();
+    if (window.FrameSound) FrameSound.play(name);
+  }
+  function applySound(axis, value) {
+    var c;
+    S.err = null; S.lookError = null;
+    if (value === S.c[axis] || (axis === 'level' && S.c.sound === 'off')) return;
+    c = next(S.c.home.slice(), S.c.recent.slice()); c[axis] = value;
+    if (!write(c, 'Sound')) S.lookError = { type: 'save', patch: { sound: c.sound, level: c.level }, row: axis, transient: false };
   }
   function clearSession() { S.undo = []; S.removedAt = {}; S.note = null; S.err = null; }
   function begin() { S.note = null; }
-  function next(home, recent) { var c = lookOf(S.c); c.home = home; c.recent = recent; c.lastApp = S.c.lastApp; c.mode = S.c.mode; return c; }
+  function next(home, recent) { var c = lookOf(S.c); c.home = home; c.recent = recent; c.lastApp = S.c.lastApp; c.mode = S.c.mode; c.sound = S.c.sound; c.level = S.c.level; return c; }
   function snap() { return { home: S.c.home.slice(), recent: S.c.recent.slice() }; }
   function pushRecent(list, id) { return [id].concat(without(list, id)).slice(0, 5); }
   function write(c, label) {
     try { localStorage.setItem(KEY, JSON.stringify(serialise(c))); }
     catch (e) { storageOk = false; S.failed++; S.err = label; log('Not saved: ' + label); return false; }
     if (c.wall !== S.c.wall || c.mode !== S.c.mode) resetRotation();
-    storageOk = true; S.c = c; S.writes++; S.err = null; log('Saved: ' + label);
+    storageOk = true; S.c = c; S.writes++; S.err = null; log('Saved: ' + label); tuneSound();
     return true;
   }
   function errText(lifted) {
@@ -449,7 +468,7 @@
   }
   function perform(title, run) {
     if (busy) return;
-    busy = true; busyTimer = setTimeout(release, 10000);
+    busy = true; busyTimer = setTimeout(release, 10000); S.launched = true;
     run(function (err) {
       release();
       if (err) message(title, err.message || 'The TV could not open this screen.', err.detail || '');
@@ -505,7 +524,7 @@
   function addAppsRoute() { openEditor('home'); }
   function openSettings() { push({ id: 'settings', f: { id: S.settingsFocus } }); }
   function openAppearance(group) {
-    var axis = { background: 'bg', layout: 'layout', typography: 'font', focus: 'focus' }[group];
+    var axis = { background: 'bg', layout: 'layout', typography: 'font', focus: 'focus', sound: 'sound' }[group];
     var action = S.detailFocus[group] || (axis ? 'choice.' + axis + '.' + S.c[axis] : group === 'rotation' ? 'rotation.' + S.c.mode : 'samsung.home');
     push({ id: 'appearance', group: group, f: { action: action } });
   }
@@ -820,6 +839,7 @@
       { id: 'layout', label: 'Layout', value: VALUE_NAMES[S.c.layout] },
       { id: 'typography', label: 'Typography', value: FONTS[S.c.font].name },
       { id: 'focus', label: 'Focus', value: VALUE_NAMES[S.c.focus] + (materialApplies() ? ', ' + VALUE_NAMES[S.c.material] : '') },
+      { id: 'sound', label: 'Sound', value: VALUE_NAMES[S.c.sound] + (S.c.sound === 'off' ? '' : ', ' + VALUE_NAMES[S.c.level]) },
       { id: 'editor', label: 'Apps on Home', value: n + (n === 1 ? ' app' : ' apps') },
       { id: 'samsung', label: 'Samsung', value: 'Home and TV settings' }];
   }
@@ -841,7 +861,7 @@
     if (id === 'editor') openEditor('settings');
     else openAppearance(id);
   }
-  var DETAIL_NAMES = { background: 'Background', layout: 'Layout', typography: 'Typography', focus: 'Focus', rotation: 'Rotation', samsung: 'Samsung' };
+  var DETAIL_NAMES = { background: 'Background', layout: 'Layout', typography: 'Typography', focus: 'Focus', rotation: 'Rotation', sound: 'Sound', samsung: 'Samsung' };
   function choice(axis, value, disabled) {
     return { action: axis === 'mode' ? 'rotation.' + value : 'choice.' + axis + '.' + value, axis: axis, value: value, disabled: !!disabled,
       label: axis === 'font' ? FONTS[value].name : axis === 'mode' ? MODES.filter(function (m) { return m.id === value; })[0].name : value === 'both' ? 'Both' : VALUE_NAMES[value] };
@@ -865,6 +885,9 @@
       { id: 'material', title: 'Material', horizontal: true, items: options('material', ['soft', 'frost', 'tint'], inactive),
         reason: inactive ? flat ? 'Materials are available with a Photo background.' : 'Choose Glass focus or the Dock layout to use materials.' : '' }
     ];
+    if (t.group === 'sound') return [
+      { id: 'sound', title: 'Sound palette', items: SOUNDS.map(function (v) { var c = choice('sound', v); c.description = SOUND_NOTES[v]; return c; }) },
+    ].concat(S.c.sound === 'off' ? [] : [{ id: 'level', title: 'Volume', horizontal: true, items: options('level', SOUND_LEVELS) }]);
     if (t.group === 'rotation') return [{ id: 'mode', title: '', items: options('mode', MODES.map(function (m) { return m.id; }), flat),
       reason: flat ? 'Choose Photo in Background to use rotation.' : 'Timed changes pause while Settings or another panel is open.' }];
     return [{ id: 'samsung', title: '', items: [
@@ -909,8 +932,10 @@
     if (item.action === 'settings.retry') {
       if (error && error.patch[error.row] !== undefined) detailFocus(t, choice(error.row, error.patch[error.row]), 0);
       if (error && error.row === 'mode') applyRotation(error.patch.mode);
+      else if (error && (error.row === 'sound' || error.row === 'level')) applySound(error.row, error.patch[error.row]);
       else if (error) setLook(error.patch, { row: error.row });
     } else if (item.axis === 'mode') applyRotation(item.value);
+    else if (item.axis === 'sound' || item.axis === 'level') applySound(item.axis, item.value);
     else if (item.axis) { patch[item.axis] = item.value; setLook(patch, { row: item.axis }); }
     else if (item.action === 'background.wallpaper') openWallpaper();
     else if (item.action === 'background.rotation') openAppearance('rotation');
@@ -920,7 +945,7 @@
   V.appearance = {
     norm: function (t) {
       var rows = detailRows(t), exists = false, applied = null;
-      var axis = { background: 'bg', layout: 'layout', typography: 'font', focus: 'focus', rotation: 'mode' }[t.group];
+      var axis = { background: 'bg', layout: 'layout', typography: 'font', focus: 'focus', rotation: 'mode', sound: 'sound' }[t.group];
       rows.forEach(function (items) { items.forEach(function (item) {
         if (item.action === t.f.action) exists = true;
         if (item.axis === axis && item.value === S.c[axis]) applied = item;
@@ -964,13 +989,20 @@
 
   /* ---------- Dispatch ---------- */
   function norm() { var t = top(), v = V[t.id]; if (v.norm) v.norm(t); }
+  function pressSig() { var t = top(); return S.stack.length + '|' + t.id + '|' + JSON.stringify(t.f) + '|' + t.i + '|' + (t.lifted ? t.lifted.order.join() : '') + '|' + focusedAction(); }
   function press(k) {
     norm();
-    var t = top();
+    var t = top(), before = pressSig(), depth = S.stack.length, after;
+    S.launched = false;
     V[t.id].key(t, k);
     norm();
     render();
     syncRotation();
+    after = pressSig();
+    if (S.launched) sfx('launch');
+    else if (k === 'back') { if (after !== before) sfx('back'); }
+    else if (k === 'ok') sfx(S.stack.length < depth ? 'back' : 'select');
+    else sfx(after !== before ? 'move' : 'edge');
   }
 
   /* ---------- Rendering ---------- */
@@ -1825,7 +1857,7 @@
     if (!el || el === stage) return;
     pointAt(el);
   });
-  var heldKeys = {};
+  var heldKeys = {}, soundSleep = 0;
   document.addEventListener('keydown', function (ev) {
     var code = ev.keyCode, k = KEYS[code];
     if (code === 9) { ev.preventDefault(); return; }
@@ -1839,8 +1871,9 @@
   window.addEventListener('focus', function () { release(); focusStage(); after(); updateClock(); });
   document.addEventListener('visibilitychange', function () {
     heldKeys = {};
-    if (document.hidden) { pauseRotation(); clearTimeout(clockTimer); }
-    else { release(); after(); updateClock(); focusStage(); }
+    clearTimeout(soundSleep);
+    if (document.hidden) { pauseRotation(); clearTimeout(clockTimer); soundSleep = setTimeout(function () { if (document.hidden && window.FrameSound) FrameSound.suspend(); }, 2000); }
+    else { release(); after(); updateClock(); focusStage(); sfx('home'); }
   });
   window.addEventListener('resize', fit);
 
@@ -1878,5 +1911,5 @@
   cueL.innerHTML = icon('left'); cueR.innerHTML = icon('right');
   initialise();
   setLook({}, { transient: true, startup: true });
-  norm(); render(); fit(); focusStage(); updateClock(); syncRotation();
+  norm(); render(); fit(); focusStage(); updateClock(); syncRotation(); sfx('home');
 })();

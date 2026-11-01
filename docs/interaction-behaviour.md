@@ -20,6 +20,7 @@ Settings opens a grouped overview: Background, Layout, Typography, Focus, Apps o
 | Layout | List or Dock; independent Text, Icons or Both choices for apps and Home controls |
 | Typography | Manrope, Neue Montreal, Mori, Pangram Sans, Geist and Newsreader, when available |
 | Focus | Type or Glass; Soft, Frost or Clear tint material |
+| Sound | Glass, Felt, Air or Off; Soft, Normal or Bold volume |
 | Apps on Home | Membership and arrangement editor |
 | Samsung | Samsung Home and TV settings |
 
@@ -30,6 +31,17 @@ Material applies to a photographic Dock, or Glass focus on a photographic List. 
 A font or photo change applies only after its resources are ready and storage succeeds. A load or storage failure keeps the previous appearance and checkmark, with a Try again action. Back cancels a pending change, leaves the group and keeps completed changes. Late load callbacks cannot apply a cancelled choice. There is no Save button. Returning to a group restores its last choice focus; returning to Settings restores its category focus. Rotation is nested within Background, and Back returns to its Rotation row.
 
 The selected font applies to Home app names, the clock and Home controls, including Newsreader. Settings, All apps, the Home editor and status text retain Manrope. The preview shows the committed Home appearance and its clock continues to update. Pangram faces are available in Nathan's private build when the local files are present; their binaries are not included in the public source. An unavailable optional face is omitted. If the baseline font is slow or missing, Home remains usable with a local fallback and can recover when the font loads.
+
+## Sound
+
+CleanFrame plays short interface sounds, synthesised in `app/sound.js` with Web Audio. There are no audio files and no network use. Palettes: Glass (clear taps and chimes, the default), Felt (warm mallets), Air (soft breaths) and Off. Volume is Soft, Normal or Bold, relative to the TV volume.
+
+- Move: a remote arrow moves focus. Edge: an arrow that cannot move further.
+- Select: OK opens a panel, applies a choice or picks up an app. Back: Back closes or leaves something.
+- Launch: OK opens an app, Art Mode or a Samsung screen.
+- Home: CleanFrame starts, or becomes visible again (for example after the Home button).
+
+Choosing a palette plays its select sound as a preview. Rapid repeats are rate-limited, and the audio engine sleeps two seconds after CleanFrame is hidden. The choice is stored with the other preferences.
 
 ## Streaming apps
 

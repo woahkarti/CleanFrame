@@ -20,7 +20,7 @@ const CATALOG = IDS.map((id, i) => ({ id, name: NAMES[i], show: true, iconPath: 
 const walls = JSON.parse(readFileSync(root + 'app/assets/wallpapers/SOURCES.json', 'utf8'));
 const out = root + '.local/qa/';
 mkdirSync(out, { recursive: true });
-const sourceFiles = ['app/main.js', 'app/device.js', 'app/index.html', 'app/style.css', 'app/config.xml', 'app/assets/wallpapers/SOURCES.json', 'app/assets/wallpapers/catalog.js', 'app/assets/adaptive-ink.js', 'app/assets/icons/metrics.js'];
+const sourceFiles = ['app/main.js', 'app/device.js', 'app/sound.js', 'app/index.html', 'app/style.css', 'app/config.xml', 'app/assets/wallpapers/SOURCES.json', 'app/assets/wallpapers/catalog.js', 'app/assets/adaptive-ink.js', 'app/assets/icons/metrics.js'];
 const hashes = () => Object.fromEntries(sourceFiles.map(f => [f, createHash('sha256').update(readFileSync(root + f)).digest('hex')]));
 const report = { scope: 'Production UI in Chromium; mock public Tizen API only; no TV contacted.', sourceBefore: hashes(), checks: [], failures: [], pageErrors: [], expectedNetworkFailures: [] };
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
@@ -361,8 +361,8 @@ try {
   });
   await run('Settings overview and visible choices', async () => {
     await page(); await scene('settings');
-    const expected = ['settings.group.background', 'settings.group.layout', 'settings.group.typography', 'settings.group.focus', 'settings.editor', 'settings.group.samsung'];
-    check('Overview has all six settings groups', same((await call('actions')).filter(a => expected.includes(a)).sort(), expected.slice().sort()));
+    const expected = ['settings.group.background', 'settings.group.layout', 'settings.group.typography', 'settings.group.focus', 'settings.group.sound', 'settings.editor', 'settings.group.samsung'];
+    check('Overview has all seven settings groups', same((await call('actions')).filter(a => expected.includes(a)).sort(), expected.slice().sort()));
     const specs = {
       background: { bg: ['dark', 'light', 'photo'] },
       layout: { layout: ['list', 'dock'], apps: ['icons', 'both', 'text'], controls: ['icons', 'both', 'text'] },
@@ -837,6 +837,32 @@ try {
     check('Warm return restores remote focus', (await state()).focusAction !== focus && (await call('where')).focusCount === 1);
     const clock = await current.locator('#caption .clock').textContent();
     check('Live 12-hour clock has no AM/PM', /^\s*\d{1,2}:\d{2}\s*$/.test(clock), clock);
+  });
+  await run('Interface sounds', async () => {
+    await page();
+    const heard = () => current.evaluate(() => ShoreQA.sounds.splice(0));
+    check('Glass at normal volume is the default', (await state()).sound === 'glass' && (await state()).level === 'normal');
+    check('Engine is bundled before main.js', await current.evaluate(() => !!window.FrameSound && FrameSound.palettes.join() === 'glass,felt,air'));
+    await heard(); await scene('home');
+    await nav('left', 'left', 'left', 'left', 'left', 'left', 'left', 'left', 'left'); await heard();
+    await nav('right'); check('Moving between tiles plays move', same(await heard(), ['move']));
+    await nav('left', 'left'); check('Pressing past the first tile plays edge', same(await heard(), ['move', 'edge']));
+    await nav('ok'); await current.waitForFunction(() => __tv.calls.length > 0);
+    check('Launching an app plays launch', same(await heard(), ['launch']));
+    await current.evaluate(() => { __setHidden(true); __setHidden(false); }); await current.waitForTimeout(50);
+    check('Returning to CleanFrame plays home', (await heard()).includes('home'));
+    await group('sound'); await heard();
+    const palettes = (await radios()).filter(r => r.action?.startsWith('choice.sound.')).map(r => r.action).sort();
+    check('Sound shows every palette and Off', same(palettes, ['air', 'felt', 'glass', 'off'].map(v => 'choice.sound.' + v)), palettes);
+    await choice('sound', 'felt');
+    check('Choosing a palette saves it once', (await stored()).sound === 'felt' && (await state()).sound === 'felt');
+    await choice('level', 'soft'); check('Volume saves', (await stored()).level === 'soft');
+    await choice('sound', 'off'); await heard();
+    check('Off hides volume choices', !(await radios()).some(r => r.action?.startsWith('choice.level.')));
+    await nav('back'); await nav('down'); await nav('up');
+    check('Off is silent', (await heard()).length === 0);
+    await current.reload(); await ready();
+    check('Sound choice survives reload', (await state()).sound === 'off' && (await state()).level === 'soft');
   });
   await run('Open rotation and browser fallback', async () => {
     await page({ seed: baseline({ mode: 'open' }) }); check('Open mode advances at cold start', (await state()).wallpaper === walls[1].id);
